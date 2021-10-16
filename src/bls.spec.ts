@@ -57,4 +57,55 @@ describe('bls', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('aggregate', () => {
+        it('aggregates multiple signatures together', async () => {
+            const message1 = '天皇';
+            const message2 = '竜';
+            const privateKey1 = await bls.generatePrivateKey(seed);
+            const privateKey2 = await bls.generatePrivateKey(`${seed.slice(0, seed.length -1)}a`);
+            const signature1 = await bls.sign(privateKey1, message1);
+            const signature2 = await bls.sign(privateKey2, message2);
+
+            const aggregateSignature = await bls.aggregate([signature1, signature2]);
+
+            expect(aggregateSignature.serialize().toString()).toBe('162,233,154,239,4,151,86,3,193,142,50,50,30,247,40,32,122,137,198,199,73,179,253,162,111,61,222,119,122,217,107,232,4,62,138,100,142,209,50,210,74,94,4,198,177,182,190,23,19,135,61,118,199,5,151,158,57,26,73,176,43,220,46,178,66,22,32,115,205,203,93,129,60,131,121,154,36,7,60,193,105,231,31,81,177,115,43,114,127,250,70,28,52,220,85,201');
+        });
+    });
+
+    describe('aggregateVerify', () => {
+        it('verifies an aggregate signature', async () => {
+            const message1 = '天皇';
+            const message2 = '竜';
+            const privateKey1 = await bls.generatePrivateKey(seed);
+            const privateKey2 = await bls.generatePrivateKey(`${seed.slice(0, seed.length -1)}a`);
+            const signature1 = await bls.sign(privateKey1, message1);
+            const signature2 = await bls.sign(privateKey2, message2);
+            const publicKey1 = bls.generatePublicKey(privateKey1);
+            const publicKey2 = bls.generatePublicKey(privateKey2);
+
+            const aggregateSignature = await bls.aggregate([signature1, signature2]);
+            const result = await bls.aggregateVerify([publicKey1, publicKey2], [message1, message2], aggregateSignature);
+
+            expect(result).toBe(true);
+        });
+
+        it('rejects an aggregate signature', async () => {
+            const message1 = '天皇';
+            const message2 = '竜';
+            const privateKey1 = await bls.generatePrivateKey(seed);
+            const privateKey2 = await bls.generatePrivateKey(`${seed.slice(0, seed.length -1)}a`);
+            const privateKey3 = await bls.generatePrivateKey(`${seed.slice(0, seed.length -1)}a`);
+            const signature1 = await bls.sign(privateKey1, message1);
+            const signature2 = await bls.sign(privateKey2, message2);
+            const publicKey1 = bls.generatePublicKey(privateKey1);
+            const publicKey2 = bls.generatePublicKey(privateKey2);
+            const publicKey3 = bls.generatePublicKey(privateKey3);
+
+            const aggregateSignature = await bls.aggregate([signature1, signature2]);
+            const result = await bls.aggregateVerify([publicKey1, publicKey2, publicKey3], [message1, message2], aggregateSignature);
+
+            expect(result).toBe(false);
+        });
+    });
 });

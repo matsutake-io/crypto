@@ -31,9 +31,24 @@ const verify = async (publicKey: G1Element, signature: G2Element, message: strin
     return BLS.AugSchemeMPL.verify(publicKey, Buffer.from(message, 'hex'), signature);
 };
 
+const aggregate = async (signatures: G2Element[]): Promise<G2Element> => {
+    const BLS = await loadBls;
+    const aggregateSignature = await BLS.AugSchemeMPL.aggregate(signatures);
+
+    return aggregateSignature;
+};
+
+const aggregateVerify = async (publicKeys: G1Element[], messages: string[], aggregateSignature: G2Element): Promise<boolean> => {
+    const BLS = await loadBls;
+
+    return BLS.AugSchemeMPL.aggregate_verify(publicKeys, messages.map(message => Buffer.from(message, 'hex')), aggregateSignature);
+};
+
 export const bls = {
     generatePrivateKey,
     generatePublicKey,
     sign,
-    verify
+    verify,
+    aggregate,
+    aggregateVerify
 };
