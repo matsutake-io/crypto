@@ -44,11 +44,32 @@ const aggregateVerify = async (publicKeys: G1Element[], messages: string[], aggr
     return BLS.AugSchemeMPL.aggregate_verify(publicKeys, messages.map(message => Buffer.from(message, 'hex')), aggregateSignature);
 };
 
+const generateChildPrivateKey = async (privateKey: PrivateKey, index: number): Promise<PrivateKey> => {
+    const BLS = await loadBls;
+
+    return BLS.AugSchemeMPL.derive_child_sk(privateKey, index);
+};
+
+const generateChildPublicKeyUnhardened = async (publicKey: G1Element, index: number): Promise<G1Element> => {
+    const BLS = await loadBls;
+
+    return BLS.AugSchemeMPL.derive_child_pk_unhardened(publicKey, index);
+};
+
+const generateChildPrivateKeyUnhardened = async (privateKey: PrivateKey, index: number): Promise<PrivateKey> => {
+    const BLS = await loadBls;
+
+    return BLS.AugSchemeMPL.derive_child_sk_unhardened(privateKey, index);
+};
+
 export const bls = {
     generatePrivateKey,
     generatePublicKey,
     sign,
     verify,
     aggregate,
-    aggregateVerify
+    aggregateVerify,
+    generateChildPrivateKey,
+    generateChildPublicKeyUnhardened,
+    generateChildPrivateKeyUnhardened
 };

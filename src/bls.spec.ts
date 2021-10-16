@@ -108,4 +108,32 @@ describe('bls', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('generateChildPrivateKey', () => {
+        it('generates a child private key', async () => {
+            const privateKey = await bls.generatePrivateKey(seed);
+            const childPrivateKey = await bls.generateChildPrivateKey(privateKey, 0);
+
+            expect(childPrivateKey.serialize().toString()).toBe('52,131,132,232,108,148,169,164,164,115,186,49,223,52,87,0,109,156,93,166,62,225,218,103,154,150,123,42,24,200,138,54');
+        });
+    });
+
+    describe('generateChildPrivateKeyUnhardened', () => {
+        it('generates a child private key', async () => {
+            const privateKey = await bls.generatePrivateKey(seed);
+            const childPrivateKey = await bls.generateChildPrivateKeyUnhardened(privateKey, 0);
+
+            expect(childPrivateKey.serialize().toString()).toBe('77,131,240,48,103,109,176,185,119,76,64,73,219,192,128,185,57,255,140,248,255,180,139,65,196,42,232,222,10,86,41,203');
+        });
+    });
+
+    describe('generateChildPublicKeyUnhardened', () => {
+        it('generates a child public key', async () => {
+            const privateKey = await bls.generatePrivateKey(seed);
+            const publicKey = bls.generatePublicKey(privateKey);
+            const childPublicKey = await bls.generateChildPublicKeyUnhardened(publicKey, 0);
+
+            expect(childPublicKey.serialize().toString()).toBe('131,10,211,66,134,157,65,139,159,253,221,165,114,115,3,255,243,103,176,246,253,216,121,0,151,70,253,18,222,243,53,245,5,2,72,179,213,227,181,22,41,132,203,229,231,49,97,165');
+        });
+    });
 });
