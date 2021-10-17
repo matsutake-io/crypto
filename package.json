@@ -1,10 +1,10 @@
 {
   "name": "@matsutake/crypto",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Crypto utilities for building Chia apps",
   "main": "index.js",
   "scripts": {
-    "test": "jest .",
+    "test": "jest ./src",
     "prepare": "tsc"
   },
   "repository": {
@@ -25,14 +25,14 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@chiamine/bls-signatures": "^0.2.1-beta.2",
     "bech32": "^2.0.0",
     "bip39": "^3.0.4",
-    "bytes.ts": "^1.0.3"
+    "bytes.ts": "^1.0.3",
+    "noble-bls12-381": "^0.15.0"
   },
   "jest": {
     "roots": [
-      "<rootDir>"
+      "<rootDir>/src"
     ],
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

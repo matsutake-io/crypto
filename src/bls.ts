@@ -1,66 +1,16 @@
-import asyncLoadBls, { G1Element, G2Element, PrivateKey } from '@chiamine/bls-signatures';
-import { bip39 } from './bip39';
+import { aggregateSignatures, utils, getPublicKey, sign as blsSign, verify as blsVerify, verifyBatch } from 'noble-bls12-381';
 
-const loadBls = asyncLoadBls();
+const generatePrivateKey = (): string => Buffer.from(utils.randomPrivateKey()).toString('hex');
 
-const generatePrivateKey = async (seed?: string): Promise<PrivateKey> => {
-    const BLS = await loadBls;
+const generatePublicKey = (privateKey: string): string => Buffer.from(getPublicKey(privateKey)).toString();
 
-    if (seed) {
-        return BLS.AugSchemeMPL.key_gen(Buffer.from(seed, 'hex'));
-    }
+const sign = async (privateKey: string, message: string): Promise<string> => blsSign(message, privateKey)
 
-    const mnemonic = bip39.generateMnemonic();
-    const newSeed = await bip39.mnemonicToSeed(mnemonic);
+const verify = async (publicKey: string, signature: string, message: string): Promise<boolean> => blsVerify(signature, message, publicKey);
 
-    return BLS.AugSchemeMPL.key_gen(Buffer.from(newSeed, 'hex'));
-};
+const aggregate = async (signatures: string[]): Promise<string> => Buffer.from(aggregateSignatures(signatures)).toString();
 
-const generatePublicKey = (privateKey: PrivateKey): G1Element => privateKey.get_g1();
-
-const sign = async (privateKey: PrivateKey, message: string): Promise<G2Element> => {
-    const BLS = await loadBls;
-    const signature = BLS.AugSchemeMPL.sign(privateKey, Buffer.from(message, 'hex'));
-
-    return signature;
-};
-
-const verify = async (publicKey: G1Element, signature: G2Element, message: string): Promise<boolean> => {
-    const BLS = await loadBls;
-
-    return BLS.AugSchemeMPL.verify(publicKey, Buffer.from(message, 'hex'), signature);
-};
-
-const aggregate = async (signatures: G2Element[]): Promise<G2Element> => {
-    const BLS = await loadBls;
-    const aggregateSignature = await BLS.AugSchemeMPL.aggregate(signatures);
-
-    return aggregateSignature;
-};
-
-const aggregateVerify = async (publicKeys: G1Element[], messages: string[], aggregateSignature: G2Element): Promise<boolean> => {
-    const BLS = await loadBls;
-
-    return BLS.AugSchemeMPL.aggregate_verify(publicKeys, messages.map(message => Buffer.from(message, 'hex')), aggregateSignature);
-};
-
-const generateChildPrivateKey = async (privateKey: PrivateKey, index: number): Promise<PrivateKey> => {
-    const BLS = await loadBls;
-
-    return BLS.AugSchemeMPL.derive_child_sk(privateKey, index);
-};
-
-const generateChildPublicKeyUnhardened = async (publicKey: G1Element, index: number): Promise<G1Element> => {
-    const BLS = await loadBls;
-
-    return BLS.AugSchemeMPL.derive_child_pk_unhardened(publicKey, index);
-};
-
-const generateChildPrivateKeyUnhardened = async (privateKey: PrivateKey, index: number): Promise<PrivateKey> => {
-    const BLS = await loadBls;
-
-    return BLS.AugSchemeMPL.derive_child_sk_unhardened(privateKey, index);
-};
+const aggregateVerify = async (publicKeys: string[], messages: string[], aggregateSignature: string): Promise<boolean> => verifyBatch(aggregateSignature, messages, publicKeys);
 
 export const bls = {
     generatePrivateKey,
@@ -68,8 +18,5 @@ export const bls = {
     sign,
     verify,
     aggregate,
-    aggregateVerify,
-    generateChildPrivateKey,
-    generateChildPublicKeyUnhardened,
-    generateChildPrivateKeyUnhardened
+    aggregateVerify
 };
