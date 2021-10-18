@@ -1,4 +1,4 @@
-import { bech32m } from 'bech32';
+import { bech32m as b } from 'bech32';
 
 const convertbits = (data: number[], frombits: number, tobits: number, pad: boolean = true) => {
     let acc = 0;
@@ -35,7 +35,7 @@ const convertbits = (data: number[], frombits: number, tobits: number, pad: bool
 
 const fromHash = (prefix: string, hash: string): string => {
     if (hash.length !== 64 && hash.length !== 66) {
-        throw new Error('Hash is incorrect length to be converted to address');
+        throw new Error('Hash is incorrect length to be converted to bech32m');
     }
 
     const data = convertbits(
@@ -54,11 +54,11 @@ const fromHash = (prefix: string, hash: string): string => {
         throw new Error('Hash could not be converted to address');
     }
 
-    return bech32m.encode(prefix, data);
+    return b.encode(prefix, data);
 };
 
 const toHash = (address: string) => {
-    const data = convertbits(bech32m.decode(address).words, 5, 8, false);
+    const data = convertbits(b.decode(address).words, 5, 8, false);
 
     if (!data) {
         throw new Error('Address could not be converted to hash');
@@ -67,7 +67,7 @@ const toHash = (address: string) => {
     return Buffer.from(data).toString('hex');
 };
 
-export const address = {
+export const bech32m = {
     fromHash,
     toHash
 };

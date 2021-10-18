@@ -1,6 +1,6 @@
 {
   "name": "@matsutake/crypto",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Crypto utilities for building Chia apps",
   "main": "index.js",
   "scripts": {
